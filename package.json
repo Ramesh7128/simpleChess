@@ -1,0 +1,20 @@
+{
+  "name": "simplechess",
+  "version": "1.0.0",
+  "description": "",
+  "main": "chess.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "parcel index.html"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AltCampus/simpleChess.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AltCampus/simpleChess/issues"
+  },
+  "homepage": "https://github.com/AltCampus/simpleChess#readme"
+}

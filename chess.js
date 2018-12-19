@@ -69,10 +69,6 @@ rows.forEach((row, i) => {
   })
 });
 
-function findPossiblePawnPos(obj) {
-
-}
-
 // 2 col, 1 row
 // 2 row, 1 col
 function findPossibleKnightPos(obj) { // 'A4'
@@ -102,8 +98,87 @@ function findPossibleKnightPos(obj) { // 'A4'
   return potentialPos;
 }
 
-function findPossiblePawnPos(obj) {
-  
+function findPossiblePawnPos() {
+  const {row, col} = selectedPiece;
+  const possiblePositions = [];
+  if (currentMover=='white') {
+    if (row ==2) {
+      possiblePositions.push(`${col}${row+2}`);  
+    }
+    possiblePositions.push(`${col}${row+1}`);
+    if ((columns.indexOf(col) - 1) > 0) {
+      possiblePositions.push(`${columns[columns.indexOf(col) - 1]}${row+1}`);
+    }
+    if ((columns.indexOf(col) + 1) < columns.length) {
+      possiblePositions.push(`${columns[columns.indexOf(col) + 1]}${row+1}`);
+    }
+    console.log(possiblePositions, "possible positions");
+  } else {
+    if (row ==7) {
+      possiblePositions.push(`${col}${row-2}`);  
+    }
+    possiblePositions.push(`${col}${row-1}`);
+    if ((columns.indexOf(col) - 1) > 0) {
+      possiblePositions.push(`${columns[columns.indexOf(col) - 1]}${row-1}`);
+    }
+    if ((columns.indexOf(col) + 1) < columns.length) {
+      possiblePositions.push(`${columns[columns.indexOf(col) + 1]}${row-1}`);
+    }
+    console.log(possiblePositions, "possible positions");
+  }
+  selectedPiece.possiblePositions = [...possiblePositions];
+}
+
+function findPossibleRooksPos() {
+  const {row, col} = selectedPiece;
+  possiblePositions = [];
+  for(let r of rows) {
+    if (r !=row) {
+      possiblePositions.push(`${col}${r}`);
+    }
+  }
+  for(let c of columns) {
+    if (c !==col) {
+      possiblePositions.push(`${c}${row}`);
+    }
+  }
+  selectedPiece.possiblePositions = [...possiblePositions];
+}
+
+
+function findPossibleBishopPos() {
+  console.log()
+  // const {row, col} = selectedPiece;
+  // const possiblePositions = [];
+  // let new_row = row, new_col = col;
+
+  // console.log('bishop called');
+  // while(true) {
+  //   // new_row != 1 || new_row != 8 || new_col !='A' || new_col !='H'
+  //   if (new_row != 1 || new_row != 8 || new_col !='A' || new_col !='H') {
+  //     new_col = columns[columns.indexOf(new_col)+1];
+  //     new_row -= 1;
+  //     possiblePositions.push(`${new_col}${new_row}`);
+  //   } else {
+  //     break;
+  //   }
+  // }
+  // console.log(possiblePositions);
+  return;
+}
+
+
+function calculateValidity() {
+  switch (selectedPiece.name) {
+    case "pawn":
+      findPossiblePawnPos();
+      break;
+    case "rook":
+      findPossibleRooksPos();
+      break;
+    // case "bishop": findPossibleBishopPos()
+    //   break;
+  }
 }
 
 
@@ -114,35 +189,41 @@ function Piece(name, color, row, col) {
   this.row = row;
   this.col = col;
   this.timesMoved = 0;
-  this.possiblePositions = ['A3', 'A4'];
+  this.possiblePositions = [];
   // position - A1
   // check for validity of move
   // move.
   this.move = function(pos) {
     
     // TODO:check the validity of move.
-
+    calculateValidity();
+    console.log('Check');
     var currentPos = this.col + this.row;
-    var nextPos = pos;
-
-    this.col = nextPos.split('')[0];
-    this.row = nextPos.split('')[1];
-
-    console.log('I am supposed to move to ', nextPos, 'and my current pos is', currentPos);
-
-    // empty the .piece property on the cell object
-    cells[currentPos].piece = null;
-    // set an new .piece prop on the nextPos cell obj
-    // kill logic
-    cells[nextPos].piece = this;
-    
-    // flip the currentMover
-    currentMover = this.color == 'white' ? 'black' : 'white';
-    selectedPiece = null;
-
-    ++this.timesMoved;
-
-    renderGame();
+    if (selectedPiece.possiblePositions.includes(pos)) {
+      console.log("inside condition0");
+      var nextPos = pos;
+  
+      this.col = nextPos.split('')[0];
+      this.row = nextPos.split('')[1];
+  
+      console.log('I am supposed to move to ', nextPos, 'and my current pos is', currentPos);
+  
+      // empty the .piece property on the cell object
+      cells[currentPos].piece = null;
+      // set an new .piece prop on the nextPos cell obj
+      // kill logic
+      cells[nextPos].piece = this;
+      
+      // flip the currentMover
+      currentMover = this.color == 'white' ? 'black' : 'white';
+      selectedPiece = null;
+  
+      ++this.timesMoved;
+      renderGame();
+    }
+    else {
+      return;
+    }
   }
 }
 
@@ -164,6 +245,7 @@ function renderGame() {
 
       if(cells[cell.id].piece && (cells[cell.id].piece.color == currentMover)) {
         selectedPiece = cells[cell.id].piece;
+        console.log(selectedPiece);
         return;
       }
 
