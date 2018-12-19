@@ -71,6 +71,47 @@ rows.forEach((row, i) => {
 
 // 2 col, 1 row
 // 2 row, 1 col
+
+function findValidRookMoves(possiblePositions) {
+  console.log(possiblePositions);
+  let firstArray = [], secondArray= [];
+  let row = Number(selectedPiece.row);
+  for(let pos of possiblePositions) {
+    if (pos.split('')[1]<row) {
+      firstArray.push(pos);
+    } else {
+      secondArray.push(pos);
+    }
+  }
+  console.log(firstArray, secondArray, "initial split");
+
+  firstArray.reverse();
+  let alteredFirstArray = [];
+  let alteredSecondArray = [];
+  
+  for(let key in firstArray) {
+    console.log(cells[firstArray[key]].piece, "cellblock piece");
+    console.log(key, "key in first Array");
+    if(cells[firstArray[key]].piece) {
+      alteredFirstArray = firstArray.slice(0, key);
+      console.log(alteredFirstArray, 'firstArray');
+      break;
+    }
+  }
+  for(let key in secondArray) {
+    console.log(key, "key in second Array");
+    console.log(cells[secondArray[key]].piece, "cellblock piece");
+    if(cells[secondArray[key]].piece) {
+      alteredSecondArray = secondArray.slice(0, key);
+      console.log(alteredSecondArray, 'secondArray');
+      break;
+    }
+  }
+  possiblePositions = [...alteredFirstArray, ...alteredSecondArray];
+  return possiblePositions;
+}
+
+
 function findPossibleKnightPos(obj) { // 'A4'
 
   var potentialPos = [];
@@ -94,12 +135,12 @@ function findPossibleKnightPos(obj) { // 'A4'
       (rows.indexOf(obj.row+2) !== -1) ? potentialPos.push(col + (obj.row+2)) : null;
     }
   });
-
   return potentialPos;
 }
 
 function findPossiblePawnPos() {
-  const {row, col} = selectedPiece;
+  let {row, col} = selectedPiece;
+  row = Number(row);
   const possiblePositions = [];
   if (currentMover=='white') {
     if (row ==2) {
@@ -124,8 +165,8 @@ function findPossiblePawnPos() {
     if ((columns.indexOf(col) + 1) < columns.length) {
       possiblePositions.push(`${columns[columns.indexOf(col) + 1]}${row-1}`);
     }
-    console.log(possiblePositions, "possible positions");
   }
+  return possiblePositions;
   selectedPiece.possiblePositions = [...possiblePositions];
 }
 
@@ -137,51 +178,203 @@ function findPossibleRooksPos() {
       possiblePositions.push(`${col}${r}`);
     }
   }
+  possiblePositionsVertical = findValidRookMoves(possiblePositions);
+  possiblePositions = [];
   for(let c of columns) {
     if (c !==col) {
       possiblePositions.push(`${c}${row}`);
     }
   }
+  possiblePositionsHorizontal = findValidRookMoves(possiblePositions);
+  possiblePositions = [...possiblePositionsVertical, ...possiblePositionsHorizontal];
+  console.log(possiblePositions, 'rookpositions');
+  return possiblePositions;
+  selectedPiece.possiblePositions = [...possiblePositions];
+}
+
+
+function findPossibleKingsPos() {
+  const {row, col} = selectedPiece;
+  const possiblePositions = [];
+  let new_row = Number(row), new_col = col;
+  console.log('king called');
+  new_col = columns[columns.indexOf(new_col)+1];
+  new_row -= 1;
+  // upright
+  while(true) {
+    // new_row != 1 || new_row != 8 || new_col !='A' || new_col !='H'
+    console.log(new_col, new_row);
+    if (new_row > 1 && new_row < 8 && columns.indexOf(new_col) >= 0 && columns.indexOf(new_col) <= 8) {
+      possiblePositions.push(`${new_col}${new_row}`);
+      new_col = columns[columns.indexOf(new_col)+1];
+      new_row -= 1;
+      break;
+    } else {
+      break;
+    }
+  }
+  // downright
+  new_row = Number(row), new_col = col;
+  new_col = columns[columns.indexOf(new_col)+1];
+  new_row += 1;
+
+  while(true) {
+    // new_row != 1 || new_row != 8 || new_col !='A' || new_col !='H'
+    console.log(new_col, new_row);
+    if (new_row > 1 && new_row < 8 && columns.indexOf(new_col) >= 0 && columns.indexOf(new_col) <= 8) {
+      possiblePositions.push(`${new_col}${new_row}`);
+      new_col = columns[columns.indexOf(new_col)+1];
+      new_row += 1;
+      break;
+    } else {
+      break;
+    }
+  }
+  // downleft
+  new_row = Number(row), new_col = col;
+  new_col = columns[columns.indexOf(new_col)-1];
+  new_row += 1;
+  while(true) {
+    // new_row != 1 || new_row != 8 || new_col !='A' || new_col !='H'
+    console.log(new_col, new_row);
+    if (new_row > 1 && new_row < 8 && columns.indexOf(new_col) >= 0 && columns.indexOf(new_col) <= 8) {
+      possiblePositions.push(`${new_col}${new_row}`);
+      new_col = columns[columns.indexOf(new_col)-1];
+      new_row += 1;
+      break;
+    } else {
+      break;
+    }
+  }
+  // upleft
+  new_row = Number(row), new_col = col;
+  new_col = columns[columns.indexOf(new_col)-1];
+  new_row -= 1;
+  while(true) {
+    // new_row != 1 || new_row != 8 || new_col !='A' || new_col !='H'
+    console.log(new_col, new_row);
+    if (new_row > 1 && new_row < 8 && columns.indexOf(new_col) >= 0 && columns.indexOf(new_col) <= 8) {
+      possiblePositions.push(`${new_col}${new_row}`);
+      new_col = columns[columns.indexOf(new_col)-1];
+      new_row -= 1;
+      break;
+    } else {
+      break;
+    }
+  }
+
+  for(let r of rows) {
+    if (r !=row) {
+      if (r == row+1 || r == row-1) {
+        possiblePositions.push(`${col}${r}`);
+      }
+    }
+  }
+  for(let c of columns) {
+    if (c !==col) {
+      if (c === columns[columns.indexOf(col) + 1] || c === columns[columns.indexOf(col) - 1]) {
+        possiblePositions.push(`${c}${row}`);
+      }
+    }
+  }
+  return possiblePositions;
   selectedPiece.possiblePositions = [...possiblePositions];
 }
 
 
 function findPossibleBishopPos() {
-  console.log()
-  // const {row, col} = selectedPiece;
-  // const possiblePositions = [];
-  // let new_row = row, new_col = col;
+  const {row, col} = selectedPiece;
+  const possiblePositions = [];
+  let new_row = Number(row), new_col = col;
 
-  // console.log('bishop called');
-  // while(true) {
-  //   // new_row != 1 || new_row != 8 || new_col !='A' || new_col !='H'
-  //   if (new_row != 1 || new_row != 8 || new_col !='A' || new_col !='H') {
-  //     new_col = columns[columns.indexOf(new_col)+1];
-  //     new_row -= 1;
-  //     possiblePositions.push(`${new_col}${new_row}`);
-  //   } else {
-  //     break;
-  //   }
-  // }
-  // console.log(possiblePositions);
-  return;
+  console.log('bishop called');
+  new_col = columns[columns.indexOf(new_col)+1];
+  new_row -= 1;
+  // upright
+  while(true) {
+    // new_row != 1 || new_row != 8 || new_col !='A' || new_col !='H'
+    console.log(new_col, new_row);
+    if (new_row > 1 && new_row < 8 && columns.indexOf(new_col) >= 0 && columns.indexOf(new_col) <= 8) {
+      possiblePositions.push(`${new_col}${new_row}`);
+      new_col = columns[columns.indexOf(new_col)+1];
+      new_row -= 1;
+    } else {
+      break;
+    }
+  }
+  // downright
+  new_row = Number(row), new_col = col;
+  new_col = columns[columns.indexOf(new_col)+1];
+  new_row += 1;
+
+  while(true) {
+    // new_row != 1 || new_row != 8 || new_col !='A' || new_col !='H'
+    console.log(new_col, new_row);
+    if (new_row > 1 && new_row < 8 && columns.indexOf(new_col) >= 0 && columns.indexOf(new_col) <= 8) {
+      possiblePositions.push(`${new_col}${new_row}`);
+      new_col = columns[columns.indexOf(new_col)+1];
+      new_row += 1;
+    } else {
+      break;
+    }
+  }
+  // downleft
+  new_row = Number(row), new_col = col;
+  new_col = columns[columns.indexOf(new_col)-1];
+  new_row += 1;
+  while(true) {
+    // new_row != 1 || new_row != 8 || new_col !='A' || new_col !='H'
+    console.log(new_col, new_row);
+    if (new_row > 1 && new_row < 8 && columns.indexOf(new_col) >= 0 && columns.indexOf(new_col) <= 8) {
+      possiblePositions.push(`${new_col}${new_row}`);
+      new_col = columns[columns.indexOf(new_col)-1];
+      new_row += 1;
+    } else {
+      break;
+    }
+  }
+  // upleft
+  new_row = Number(row), new_col = col;
+  new_col = columns[columns.indexOf(new_col)-1];
+  new_row -= 1;
+  while(true) {
+    // new_row != 1 || new_row != 8 || new_col !='A' || new_col !='H'
+    console.log(new_col, new_row);
+    if (new_row > 1 && new_row < 8 && columns.indexOf(new_col) >= 0 && columns.indexOf(new_col) <= 8) {
+      possiblePositions.push(`${new_col}${new_row}`);
+      new_col = columns[columns.indexOf(new_col)-1];
+      new_row -= 1;
+    } else {
+      break;
+    }
+  }
+  return possiblePositions;
+  selectedPiece.possiblePositions = [...possiblePositions];
 }
 
 
 function calculateValidity() {
   switch (selectedPiece.name) {
     case "pawn":
-      findPossiblePawnPos();
+      selectedPiece.possiblePositions = [...findPossiblePawnPos()];
       break;
     case "rook":
-      findPossibleRooksPos();
+      selectedPiece.possiblePositions = [...findPossibleRooksPos()];
       break;
-    // case "bishop": findPossibleBishopPos()
-    //   break;
+    case "bishop": 
+      selectedPiece.possiblePositions = [...findPossibleBishopPos()];
+      break;
+    case "knight":
+      selectedPiece.possiblePositions = [...findPossibleKnightPos(selectedPiece)];
+      break;
+    case "king":
+      selectedPiece.possiblePositions = [...findPossibleKingsPos()];
+      break;
+    case "queen":
+      selectedPiece.possiblePositions = [...findPossibleBishopPos(),...findPossibleRooksPos()];
+      break;
   }
 }
-
-
 
 function Piece(name, color, row, col) {
   this.name = name;

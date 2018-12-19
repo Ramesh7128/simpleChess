@@ -205,6 +205,71 @@ rows.forEach(function (row, i) {
 }); // 2 col, 1 row
 // 2 row, 1 col
 
+function findValidRookMoves(possiblePositions) {
+  console.log(possiblePositions);
+  var firstArray = [],
+      secondArray = [];
+  var row = Number(selectedPiece.row);
+  var _iteratorNormalCompletion = true;
+  var _didIteratorError = false;
+  var _iteratorError = undefined;
+
+  try {
+    for (var _iterator = possiblePositions[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+      var pos = _step.value;
+
+      if (pos.split('')[1] < row) {
+        firstArray.push(pos);
+      } else {
+        secondArray.push(pos);
+      }
+    }
+  } catch (err) {
+    _didIteratorError = true;
+    _iteratorError = err;
+  } finally {
+    try {
+      if (!_iteratorNormalCompletion && _iterator.return != null) {
+        _iterator.return();
+      }
+    } finally {
+      if (_didIteratorError) {
+        throw _iteratorError;
+      }
+    }
+  }
+
+  console.log(firstArray, secondArray, "initial split");
+  firstArray.reverse();
+  var alteredFirstArray = [];
+  var alteredSecondArray = [];
+
+  for (var key in firstArray) {
+    console.log(cells[firstArray[key]].piece, "cellblock piece");
+    console.log(key, "key in first Array");
+
+    if (cells[firstArray[key]].piece) {
+      alteredFirstArray = firstArray.slice(0, key);
+      console.log(alteredFirstArray, 'firstArray');
+      break;
+    }
+  }
+
+  for (var _key in secondArray) {
+    console.log(_key, "key in second Array");
+    console.log(cells[secondArray[_key]].piece, "cellblock piece");
+
+    if (cells[secondArray[_key]].piece) {
+      alteredSecondArray = secondArray.slice(0, _key);
+      console.log(alteredSecondArray, 'secondArray');
+      break;
+    }
+  }
+
+  possiblePositions = _toConsumableArray(alteredFirstArray).concat(_toConsumableArray(alteredSecondArray));
+  return possiblePositions;
+}
+
 function findPossibleKnightPos(obj) {
   // 'A4'
   var potentialPos = [];
@@ -231,6 +296,7 @@ function findPossiblePawnPos() {
   var _selectedPiece = selectedPiece,
       row = _selectedPiece.row,
       col = _selectedPiece.col;
+  row = Number(row);
   var possiblePositions = [];
 
   if (currentMover == 'white') {
@@ -263,10 +329,9 @@ function findPossiblePawnPos() {
     if (columns.indexOf(col) + 1 < columns.length) {
       possiblePositions.push("".concat(columns[columns.indexOf(col) + 1]).concat(row - 1));
     }
-
-    console.log(possiblePositions, "possible positions");
   }
 
+  return possiblePositions;
   selectedPiece.possiblePositions = possiblePositions.concat();
 }
 
@@ -284,6 +349,9 @@ function findPossibleRooksPos() {
     }
   }
 
+  possiblePositionsVertical = findValidRookMoves(possiblePositions);
+  possiblePositions = [];
+
   for (var _i2 = 0; _i2 < columns.length; _i2++) {
     var c = columns[_i2];
 
@@ -292,40 +360,226 @@ function findPossibleRooksPos() {
     }
   }
 
+  possiblePositionsHorizontal = findValidRookMoves(possiblePositions);
+  possiblePositions = _toConsumableArray(possiblePositionsVertical).concat(_toConsumableArray(possiblePositionsHorizontal));
+  console.log(possiblePositions, 'rookpositions');
+  return possiblePositions;
   selectedPiece.possiblePositions = _toConsumableArray(possiblePositions);
 }
 
-function findPossibleBishopPos() {
-  console.log(); // const {row, col} = selectedPiece;
-  // const possiblePositions = [];
-  // let new_row = row, new_col = col;
-  // console.log('bishop called');
-  // while(true) {
-  //   // new_row != 1 || new_row != 8 || new_col !='A' || new_col !='H'
-  //   if (new_row != 1 || new_row != 8 || new_col !='A' || new_col !='H') {
-  //     new_col = columns[columns.indexOf(new_col)+1];
-  //     new_row -= 1;
-  //     possiblePositions.push(`${new_col}${new_row}`);
-  //   } else {
-  //     break;
-  //   }
-  // }
-  // console.log(possiblePositions);
+function findPossibleKingsPos() {
+  var _selectedPiece3 = selectedPiece,
+      row = _selectedPiece3.row,
+      col = _selectedPiece3.col;
+  var possiblePositions = [];
+  var new_row = Number(row),
+      new_col = col;
+  console.log('king called');
+  new_col = columns[columns.indexOf(new_col) + 1];
+  new_row -= 1; // upright
 
-  return;
+  while (true) {
+    // new_row != 1 || new_row != 8 || new_col !='A' || new_col !='H'
+    console.log(new_col, new_row);
+
+    if (new_row > 1 && new_row < 8 && columns.indexOf(new_col) >= 0 && columns.indexOf(new_col) <= 8) {
+      possiblePositions.push("".concat(new_col).concat(new_row));
+      new_col = columns[columns.indexOf(new_col) + 1];
+      new_row -= 1;
+      break;
+    } else {
+      break;
+    }
+  } // downright
+
+
+  new_row = Number(row), new_col = col;
+  new_col = columns[columns.indexOf(new_col) + 1];
+  new_row += 1;
+
+  while (true) {
+    // new_row != 1 || new_row != 8 || new_col !='A' || new_col !='H'
+    console.log(new_col, new_row);
+
+    if (new_row > 1 && new_row < 8 && columns.indexOf(new_col) >= 0 && columns.indexOf(new_col) <= 8) {
+      possiblePositions.push("".concat(new_col).concat(new_row));
+      new_col = columns[columns.indexOf(new_col) + 1];
+      new_row += 1;
+      break;
+    } else {
+      break;
+    }
+  } // downleft
+
+
+  new_row = Number(row), new_col = col;
+  new_col = columns[columns.indexOf(new_col) - 1];
+  new_row += 1;
+
+  while (true) {
+    // new_row != 1 || new_row != 8 || new_col !='A' || new_col !='H'
+    console.log(new_col, new_row);
+
+    if (new_row > 1 && new_row < 8 && columns.indexOf(new_col) >= 0 && columns.indexOf(new_col) <= 8) {
+      possiblePositions.push("".concat(new_col).concat(new_row));
+      new_col = columns[columns.indexOf(new_col) - 1];
+      new_row += 1;
+      break;
+    } else {
+      break;
+    }
+  } // upleft
+
+
+  new_row = Number(row), new_col = col;
+  new_col = columns[columns.indexOf(new_col) - 1];
+  new_row -= 1;
+
+  while (true) {
+    // new_row != 1 || new_row != 8 || new_col !='A' || new_col !='H'
+    console.log(new_col, new_row);
+
+    if (new_row > 1 && new_row < 8 && columns.indexOf(new_col) >= 0 && columns.indexOf(new_col) <= 8) {
+      possiblePositions.push("".concat(new_col).concat(new_row));
+      new_col = columns[columns.indexOf(new_col) - 1];
+      new_row -= 1;
+      break;
+    } else {
+      break;
+    }
+  }
+
+  for (var _i3 = 0; _i3 < rows.length; _i3++) {
+    var r = rows[_i3];
+
+    if (r != row) {
+      if (r == row + 1 || r == row - 1) {
+        possiblePositions.push("".concat(col).concat(r));
+      }
+    }
+  }
+
+  for (var _i4 = 0; _i4 < columns.length; _i4++) {
+    var c = columns[_i4];
+
+    if (c !== col) {
+      if (c === columns[columns.indexOf(col) + 1] || c === columns[columns.indexOf(col) - 1]) {
+        possiblePositions.push("".concat(c).concat(row));
+      }
+    }
+  }
+
+  return possiblePositions;
+  selectedPiece.possiblePositions = possiblePositions.concat();
+}
+
+function findPossibleBishopPos() {
+  var _selectedPiece4 = selectedPiece,
+      row = _selectedPiece4.row,
+      col = _selectedPiece4.col;
+  var possiblePositions = [];
+  var new_row = Number(row),
+      new_col = col;
+  console.log('bishop called');
+  new_col = columns[columns.indexOf(new_col) + 1];
+  new_row -= 1; // upright
+
+  while (true) {
+    // new_row != 1 || new_row != 8 || new_col !='A' || new_col !='H'
+    console.log(new_col, new_row);
+
+    if (new_row > 1 && new_row < 8 && columns.indexOf(new_col) >= 0 && columns.indexOf(new_col) <= 8) {
+      possiblePositions.push("".concat(new_col).concat(new_row));
+      new_col = columns[columns.indexOf(new_col) + 1];
+      new_row -= 1;
+    } else {
+      break;
+    }
+  } // downright
+
+
+  new_row = Number(row), new_col = col;
+  new_col = columns[columns.indexOf(new_col) + 1];
+  new_row += 1;
+
+  while (true) {
+    // new_row != 1 || new_row != 8 || new_col !='A' || new_col !='H'
+    console.log(new_col, new_row);
+
+    if (new_row > 1 && new_row < 8 && columns.indexOf(new_col) >= 0 && columns.indexOf(new_col) <= 8) {
+      possiblePositions.push("".concat(new_col).concat(new_row));
+      new_col = columns[columns.indexOf(new_col) + 1];
+      new_row += 1;
+    } else {
+      break;
+    }
+  } // downleft
+
+
+  new_row = Number(row), new_col = col;
+  new_col = columns[columns.indexOf(new_col) - 1];
+  new_row += 1;
+
+  while (true) {
+    // new_row != 1 || new_row != 8 || new_col !='A' || new_col !='H'
+    console.log(new_col, new_row);
+
+    if (new_row > 1 && new_row < 8 && columns.indexOf(new_col) >= 0 && columns.indexOf(new_col) <= 8) {
+      possiblePositions.push("".concat(new_col).concat(new_row));
+      new_col = columns[columns.indexOf(new_col) - 1];
+      new_row += 1;
+    } else {
+      break;
+    }
+  } // upleft
+
+
+  new_row = Number(row), new_col = col;
+  new_col = columns[columns.indexOf(new_col) - 1];
+  new_row -= 1;
+
+  while (true) {
+    // new_row != 1 || new_row != 8 || new_col !='A' || new_col !='H'
+    console.log(new_col, new_row);
+
+    if (new_row > 1 && new_row < 8 && columns.indexOf(new_col) >= 0 && columns.indexOf(new_col) <= 8) {
+      possiblePositions.push("".concat(new_col).concat(new_row));
+      new_col = columns[columns.indexOf(new_col) - 1];
+      new_row -= 1;
+    } else {
+      break;
+    }
+  }
+
+  return possiblePositions;
+  selectedPiece.possiblePositions = possiblePositions.concat();
 }
 
 function calculateValidity() {
   switch (selectedPiece.name) {
     case "pawn":
-      findPossiblePawnPos();
+      selectedPiece.possiblePositions = _toConsumableArray(findPossiblePawnPos());
       break;
 
     case "rook":
-      findPossibleRooksPos();
+      selectedPiece.possiblePositions = _toConsumableArray(findPossibleRooksPos());
       break;
-    // case "bishop": findPossibleBishopPos()
-    //   break;
+
+    case "bishop":
+      selectedPiece.possiblePositions = _toConsumableArray(findPossibleBishopPos());
+      break;
+
+    case "knight":
+      selectedPiece.possiblePositions = _toConsumableArray(findPossibleKnightPos(selectedPiece));
+      break;
+
+    case "king":
+      selectedPiece.possiblePositions = _toConsumableArray(findPossibleKingsPos());
+      break;
+
+    case "queen":
+      selectedPiece.possiblePositions = _toConsumableArray(findPossibleBishopPos()).concat(_toConsumableArray(findPossibleRooksPos()));
+      break;
   }
 }
 
